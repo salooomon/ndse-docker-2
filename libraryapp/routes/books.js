@@ -6,6 +6,9 @@ const fileMulter = require('../middleware/file');
 const Book = require('../Book');
 const {v4: uuid} = require('uuid');
 
+const PORT = process.env.CNT_PORT || 3002;
+const BASE_URL = process.env.BASE_URL || "http://localhost";
+
 const store = {
   books : [
     {
@@ -63,24 +66,40 @@ router.post('/create', fileMulter.single('filebook'), (req, res) => {
   res.redirect('/books')
 })
 
-router.get('/:id', (req, res) => {
-  const {books} = store;
-  const {id} = req.params;
+router.get('/:id', async (req, res) => {
+  const { books } = store;
+  const { id } = req.params;
   const index = books.findIndex((elem) => elem.id === id);
+  
+  if (index !== -1) {
 
-  if (index === -1) {
+    let cnt = 0;
+    try {
+      const response = await fetch(`${BASE_URL}:${PORT}/counter/${id}/incr`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        }
+      });
+      const data = await response.json();
+      cnt = data.cnt;
+    } catch (error) {
+      console.log(error);
+    }
+
+    res.render("books/view", {
+      title: "book | view",
+      books: books[index],
+      count: cnt
+    })
+  } else {
     res.redirect('/404');
   }
-
-  res.render("books/view", {
-    title: "book | view",
-    books: books[index],
-  })
 })
 
 router.get('/update/:id', fileMulter.single('filebook'), (req, res) => {
-  const {books} = store;
-  const {id} = req.params;
+  const { books } = store;
+  const { id } = req.params;
   const index = books.findIndex(elem => elem.id === id);
 
   if (index === -1) {
@@ -94,8 +113,8 @@ router.get('/update/:id', fileMulter.single('filebook'), (req, res) => {
 })
 
 router.post('/update/:id', fileMulter.single('filebook'), (req, res) => {
-  const {books} = store;
-  const {id} = req.params;
+  const { books } = store;
+  const { id } = req.params;
   const index = books.findIndex(elem => elem.id === id);
 
   const {
@@ -122,8 +141,8 @@ router.post('/update/:id', fileMulter.single('filebook'), (req, res) => {
 })
 
 router.post('/delete/:id', (req, res) => {
-  const {books} = store;
-  const {id} = req.params;
+  const { books } = store;
+  const { id } = req.params;
   const index = books.findIndex(elem => elem.id === id);
 
   if (index === -1) {
@@ -131,7 +150,7 @@ router.post('/delete/:id', (req, res) => {
   }
 
   books.splice(index, 1);
-  res.redirect('/books')
+  res.redirect('/books');
 })
 
 module.exports = router

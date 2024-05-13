@@ -1,40 +1,39 @@
 const express = require('express')
 const redis = require('redis');
 
-const router = express.Router();
 const app = express();
 
-const REDIS_URL = process.env.REDIS_URL;
+const PORT = process.env.PORT || 3000;
+const REDIS_URL = process.env.REDIS_URL || 'localhost';
 
 const client = redis.createClient({ url: REDIS_URL });
+
 (async () => {
   await client.connect();
-})()
+}) ();
 
-const counterBook = {}
+app.post('/counter/:bookId/incr', async (req, res) => {
+  const { bookId } = req.params ;
 
-router.post('/counter/:bookId/incr', async (res, req) => {
-  const { bookId } = req.params 
-  
   try {
-   const cnt = await client.incr(bookId);
-   counterBook[bookId] = cnt;
+    const cnt = await client.incr(bookId);
+    res.status(200);
+    res.json({message: `${bookId}`, cnt});
   } catch (err) {
-    res.json({errcode: 500, errmsg: `redis error: ${err}`});
+    res.json({errcode: 500, errmsg: `error counter: ${err}`});
   }
 })
 
-router.get('/counter/:bookId', async (res, req) => {
+app.get('/counter/:bookId', async (req, res) => {
   const { bookId } = req.params;
 
   try {
-    res.json(counterBook[bookId]);
+    const cnt = await client.get(bookId);
+    res.json({massage: `${bookId}`, cnt});
   } catch (err) {
-    res.json({errcode: 500, errmsg: `redis error: ${err}`});
+    res.json({errcode: 500, errmsg: `error counter: ${err}`});
   }
 })
-
-const PORT = process.env.PORT || 3002
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

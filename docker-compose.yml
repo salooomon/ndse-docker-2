@@ -1,0 +1,24 @@
+services:
+  storage: 
+    image: redis
+    volumes:
+      - ./data:/data
+  counter:
+    image: kirill000/counter:v1.0.0
+    ports: 
+      - 3000:3000
+    environment:
+      - PORTS=3000
+      - REDIS_URL=redis://storage
+    depends_on:
+      - storage
+  library:
+    image: kirill000/library:v1.0.0
+    ports:
+      - 3001:3001
+    environment:
+      - PORTS=3001
+      - CNT_PORT=3000
+      - REDIS_URL=redis://storage
+    depends_on:
+      - counter
