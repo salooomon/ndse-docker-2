@@ -6,7 +6,7 @@ const fileMulter = require('../middleware/file');
 const Book = require('../Book');
 const {v4: uuid} = require('uuid');
 
-const PORT = process.env.CNT_PORT || 3002;
+const PORT = process.env.CNT_PORT || 3000;
 const BASE_URL = process.env.BASE_URL || "http://localhost";
 
 const store = {
@@ -72,7 +72,6 @@ router.get('/:id', async (req, res) => {
   const index = books.findIndex((elem) => elem.id === id);
   
   if (index !== -1) {
-
     let cnt = 0;
     try {
       const response = await fetch(`${BASE_URL}:${PORT}/counter/${id}/incr`, {
@@ -91,11 +90,11 @@ router.get('/:id', async (req, res) => {
       title: "book | view",
       books: books[index],
       count: cnt
-    })
+    });
   } else {
     res.redirect('/404');
   }
-})
+});
 
 router.get('/update/:id', fileMulter.single('filebook'), (req, res) => {
   const { books } = store;
@@ -110,7 +109,7 @@ router.get('/update/:id', fileMulter.single('filebook'), (req, res) => {
     title: "book | update",
     books: books
   })
-})
+});
 
 router.post('/update/:id', fileMulter.single('filebook'), (req, res) => {
   const { books } = store;
@@ -138,7 +137,7 @@ router.post('/update/:id', fileMulter.single('filebook'), (req, res) => {
     fileBook: "someFileBook"
   }
   res.redirect(`/books/${id}`);
-})
+});
 
 router.post('/delete/:id', (req, res) => {
   const { books } = store;
@@ -151,6 +150,6 @@ router.post('/delete/:id', (req, res) => {
 
   books.splice(index, 1);
   res.redirect('/books');
-})
+});
 
 module.exports = router

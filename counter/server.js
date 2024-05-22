@@ -1,4 +1,4 @@
-const express = require('express')
+const express = require('express');
 const redis = require('redis');
 
 const app = express();
@@ -13,7 +13,7 @@ const client = redis.createClient({ url: REDIS_URL });
 }) ();
 
 app.post('/counter/:bookId/incr', async (req, res) => {
-  const { bookId } = req.params ;
+  const { bookId } = req.params;
 
   try {
     const cnt = await client.incr(bookId);
@@ -22,7 +22,7 @@ app.post('/counter/:bookId/incr', async (req, res) => {
   } catch (err) {
     res.json({errcode: 500, errmsg: `error counter: ${err}`});
   }
-})
+});
 
 app.get('/counter/:bookId', async (req, res) => {
   const { bookId } = req.params;
@@ -33,7 +33,7 @@ app.get('/counter/:bookId', async (req, res) => {
   } catch (err) {
     res.json({errcode: 500, errmsg: `error counter: ${err}`});
   }
-})
+});
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
