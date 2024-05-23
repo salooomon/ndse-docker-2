@@ -7,7 +7,7 @@ const Book = require('../Book');
 const {v4: uuid} = require('uuid');
 
 const PORT = process.env.CNT_PORT || 3000;
-const BASE_URL = process.env.BASE_URL || "http://localhost";
+const BASE_URL = process.env.BASE_URL || "http://counter";
 
 const store = {
   books : [
